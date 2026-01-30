@@ -1,4 +1,3 @@
-```md
 # Annotation Studio
 
 Annotation Studio is a modern web application that allows authenticated users to draw, edit, and manage rectangle annotations on a canvas. The application uses React Konva for canvas rendering and a secure backend to persist annotations per user.
