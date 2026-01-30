@@ -160,7 +160,7 @@ export default function CanvasStage() {
           }}
         >
           <CardContent>
-            <Typography variant="h6" mb={2}>
+            <Typography variant="h6" mb={2} color="white">
               Inspector
             </Typography>
 
