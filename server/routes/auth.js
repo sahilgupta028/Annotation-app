@@ -50,10 +50,25 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.json({ token });
+    res.cookie("token", token, {
+  httpOnly: true,
+  secure: true,          // REQUIRED on Render (HTTPS)
+  sameSite: "none",      // REQUIRED for cross-origin
+  maxAge: 24 * 60 * 60 * 1000
+});
+    res.json({ message: "Login success" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+});
+
+router.post("/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "none",
+    secure: true,
+  });
+  res.json({ message: "Logged out" });
 });
 
 export default router;

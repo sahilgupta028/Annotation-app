@@ -15,22 +15,34 @@ import {
   Divider,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toast";
+import { toast } from "react-toastify";
 
 export default function CanvasStage() {
   const [rects, setRects] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [drawingRect, setDrawingRect] = useState(null);
-  const router = useRouter();
 
+  const router = useRouter();
   const trRef = useRef(null);
   const shapeRef = useRef(null);
 
   const selectedRect = rects.find((r) => r._id === selectedId);
 
+  /* ---------------- AUTH + LOAD ---------------- */
+
   useEffect(() => {
-    api.get("/annotations").then((res) => setRects(res.data));
-  }, []);
+    const loadAnnotations = async () => {
+      try {
+        const res = await api.get("/annotations");
+        setRects(res.data);
+      } catch (err) {
+        // 🔐 cookie missing / expired
+        router.replace("/");
+      }
+    };
+
+    loadAnnotations();
+  }, [router]);
 
   useEffect(() => {
     if (shapeRef.current && trRef.current) {
@@ -38,6 +50,8 @@ export default function CanvasStage() {
       trRef.current.getLayer().batchDraw();
     }
   }, [selectedId]);
+
+  /* ---------------- DRAWING ---------------- */
 
   const handleMouseDown = (e) => {
     if (e.target !== e.target.getStage()) return;
@@ -76,11 +90,19 @@ export default function CanvasStage() {
     setSelectedId(null);
   };
 
+  /* ---------------- LOGOUT ---------------- */
+
   const logout = async () => {
-    localStorage.clear();
-    router.push('/');
-    toast.success("User logout");
+    try {
+      await api.post("/auth/logout"); // 🔐 clears cookie
+      toast.success("Logged out successfully");
+      router.replace("/");
+    } catch {
+      toast.error("Logout failed");
+    }
   };
+
+  /* ---------------- UI ---------------- */
 
   return (
     <Box
@@ -103,46 +125,30 @@ export default function CanvasStage() {
           ✨ Annotation Studio
         </Typography>
 
-        <Button
-          variant="contained"
-          color="error"
-          disabled={!selectedId}
-          onClick={deleteRect}
-          sx={{
-            borderRadius: 2,
-            textTransform: "none",
-            boxShadow: selectedId
-              ? "0 10px 30px rgba(239,68,68,0.35)"
-              : "none",
-          }}
-        >
-          Delete
-        </Button>
+        <Stack direction="row" spacing={2}>
+          <Button
+            variant="contained"
+            color="error"
+            disabled={!selectedId}
+            onClick={deleteRect}
+            sx={{ borderRadius: 2, textTransform: "none" }}
+          >
+            Delete
+          </Button>
 
-        <Button
-          variant="contained"
-          color="success"
-          onClick={logout}
-          sx={{
-            borderRadius: 2,
-            textTransform: "none",
-            boxShadow: selectedId
-              ? "0 10px 30px rgba(239,68,68,0.35)"
-              : "none",
-          }}
-        >
-          Logout
-        </Button>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={logout}
+            sx={{ borderRadius: 2, textTransform: "none" }}
+          >
+            Logout
+          </Button>
+        </Stack>
       </Stack>
 
       {/* Layout */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "280px 1fr",
-          gap: 3,
-        }}
-      >
+      <Box sx={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 3 }}>
         {/* Inspector */}
         <Card
           sx={{
@@ -153,35 +159,31 @@ export default function CanvasStage() {
           }}
         >
           <CardContent>
-            <Typography variant="h6" mb={2} color="white">
+            <Typography variant="h6" mb={2}>
               Inspector
             </Typography>
 
             {selectedRect ? (
-              <Stack spacing={1.2} fontSize={14} color="rgba(255,255,255,0.8)">
+              <Stack spacing={1}>
                 {["x", "y", "width", "height"].map((key) => (
-                  <Stack
-                    key={key}
-                    direction="row"
-                    justifyContent="space-between"
-                  >
+                  <Stack key={key} direction="row" justifyContent="space-between">
                     <span>{key.toUpperCase()}</span>
                     <span>{Math.round(selectedRect[key])}</span>
                   </Stack>
                 ))}
               </Stack>
             ) : (
-              <Typography variant="body2" color="rgba(255,255,255,0.4)">
-                Select a rectangle to inspect
+              <Typography color="rgba(255,255,255,0.4)">
+                Select a rectangle
               </Typography>
             )}
 
-            <Divider sx={{ my: 2, borderColor: "rgba(255,255,255,0.1)" }} />
+            <Divider sx={{ my: 2 }} />
 
             <Typography variant="caption" color="rgba(255,255,255,0.4)">
               • Drag to draw<br />
               • Click to select<br />
-              • Resize with handles
+              • Resize handles
             </Typography>
           </CardContent>
         </Card>
@@ -206,7 +208,6 @@ export default function CanvasStage() {
               right: 16,
               background: "rgba(59,130,246,0.2)",
               color: "#93c5fd",
-              border: "1px solid rgba(59,130,246,0.3)",
             }}
           />
 
@@ -237,16 +238,12 @@ export default function CanvasStage() {
                   }
                   onTransformEnd={(e) => {
                     const node = e.target;
-                    const scaleX = node.scaleX();
-                    const scaleY = node.scaleY();
-
                     updateRect(rect._id, {
                       x: node.x(),
                       y: node.y(),
-                      width: Math.max(5, node.width() * scaleX),
-                      height: Math.max(5, node.height() * scaleY),
+                      width: node.width() * node.scaleX(),
+                      height: node.height() * node.scaleY(),
                     });
-
                     node.scaleX(1);
                     node.scaleY(1);
                   }}
@@ -262,11 +259,7 @@ export default function CanvasStage() {
                 />
               )}
 
-              <Transformer
-                ref={trRef}
-                anchorSize={8}
-                borderStroke="#f87171"
-              />
+              <Transformer ref={trRef} anchorSize={8} />
             </Layer>
           </Stage>
         </Card>

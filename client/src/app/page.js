@@ -26,10 +26,12 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await api.post("/auth/login", { username, password });
-      localStorage.setItem("token", res.data.token);
+      // ✅ backend sets httpOnly cookie here
+      await api.post("/auth/login", { username, password });
+
+      // ✅ cookie is already saved by browser
       router.push("/canvas");
-    } catch {
+    } catch (err) {
       setError("Invalid username or password");
     }
   };
@@ -84,16 +86,14 @@ export default function LoginPage() {
               margin="normal"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              required
               InputLabelProps={{ style: { color: "#cbd5f5" } }}
-              InputProps={{
-                style: { color: "white" },
-              }}
+              InputProps={{ style: { color: "white" } }}
               sx={{
                 "& .MuiOutlinedInput-root": {
                   backgroundColor: "rgba(255,255,255,0.08)",
                 },
               }}
-              required
             />
 
             <TextField
@@ -103,16 +103,14 @@ export default function LoginPage() {
               margin="normal"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
               InputLabelProps={{ style: { color: "#cbd5f5" } }}
-              InputProps={{
-                style: { color: "white" },
-              }}
+              InputProps={{ style: { color: "white" } }}
               sx={{
                 "& .MuiOutlinedInput-root": {
                   backgroundColor: "rgba(255,255,255,0.08)",
                 },
               }}
-              required
             />
 
             {error && (
