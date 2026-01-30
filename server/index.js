@@ -5,11 +5,15 @@ import connectDB from "./config/db.js";
 
 import authRoutes from "./routes/auth.js";
 import annotationRoutes from "./routes/annotation.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 connectDB();
 
 const app = express();
+
+app.use(cookieParser());
+
 
 app.use(
   cors({
