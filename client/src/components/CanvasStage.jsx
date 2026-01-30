@@ -16,7 +16,7 @@ import {
   Divider,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "react-toast";
 
 export default function CanvasStage() {
   const [rects, setRects] = useState([]);

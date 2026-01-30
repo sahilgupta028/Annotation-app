@@ -8,10 +8,6 @@ import CanvasStage from "../../components/CanvasStage";
 export default function CanvasPage() {
   const router = useRouter();
 
-  useEffect(() => {
-    if (!localStorage.getItem("token")) router.push("/");
-  }, []);
-
   return (
     <>
       <CanvasStage />
