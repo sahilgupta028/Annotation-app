@@ -66,55 +66,6 @@ annotation-app/
 
 ---
 
-## Getting Started
-
-### Prerequisites
-- Node.js (v18 or higher)
-- MongoDB running locally or remotely
-- npm or yarn
-
----
-
-### Installation
-
-Clone the repository:
-
-```bash
-git clone <private-repo-url>
-cd annotation-app
-```
-
-Install dependencies:
-
-```bash
-npm install
-```
-
----
-
-### Environment Setup
-
-Create a `.env.local` file in the frontend root:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
-```
-
----
-
-### Run the Application
-
-```bash
-npm run dev
-```
-
-Open the app in your browser:
-
-```
-http://localhost:3000
-```
-
----
 
 ## API Endpoints
 
