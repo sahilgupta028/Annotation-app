@@ -1,5 +1,5 @@
 import express from "express";
-import Annotation from "../models/annotation.js";
+import Annotation from "../models/Annotations.js";
 import authMiddleware from "../middleware/authmiddleware.js";
 
 const router = express.Router();
