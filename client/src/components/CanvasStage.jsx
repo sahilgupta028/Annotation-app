@@ -167,7 +167,7 @@ export default function CanvasStage() {
             {selectedRect ? (
               <Stack spacing={1}>
                 {["x", "y", "width", "height"].map((key) => (
-                  <Stack key={key} direction="row" justifyContent="space-between">
+                  <Stack key={key} direction="row" justifyContent="space-between" color="white">
                     <span>{key.toUpperCase()}</span>
                     <span>{Math.round(selectedRect[key])}</span>
                   </Stack>
